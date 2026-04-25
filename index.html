@@ -90,7 +90,6 @@
 
         .u-name-tag { color: #000; display: block; font-weight: 800; font-size: 13px; margin-bottom: 2px; padding: 0 5px; }
 
-        /* التعديل لرفع حقل الكتابة */
         .input-bar { 
             padding: 10px 10px 30px 10px; 
             display: flex; 
@@ -126,7 +125,20 @@
         <button class="btn-p" style="background:var(--wa-action); color:#fff; width: 80%;" onclick="finishLogin()">دخول</button>
     </div>
 
-    <div id="modal-profile" class="modal-overlay"><div class="modal-card"><img id="p-img" src="" style="width:90px; height:90px; border-radius:50%; margin-bottom:10px; border:2px solid var(--wa-action); object-fit: cover;"><div id="p-name" style="font-size:18px; font-weight:900; margin-bottom:15px;">...</div><div id="my-profile-tools" style="display:none;"><label style="background:#f0f0f0; padding:10px; border-radius:12px; font-size:13px; cursor:pointer; display:block; margin-bottom:10px; font-weight:700;">🖼️ تغيير صورتي الشخصية<input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'profile')"></label></div><button id="msg-btn" class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="openPrivateChat()">💬 مراسلة خاصة</button><button id="block-btn" class="btn-p" style="background:var(--tt-red); color:#fff;" onclick="toggleBlockUser()">🚫 حظر المستخدم</button><button class="btn-p" style="background:#eee;" onclick="hideModal('modal-profile')">إغلاق</button></div></div>
+    <div id="modal-profile" class="modal-overlay">
+        <div class="modal-card">
+            <img id="p-img" src="" style="width:90px; height:90px; border-radius:50%; margin-bottom:10px; border:2px solid var(--wa-action); object-fit: cover;">
+            <div id="p-name" style="font-size:18px; font-weight:900; margin-bottom:15px;">...</div>
+            <div id="my-profile-tools" style="display:none;">
+                <label style="background:#f0f0f0; padding:10px; border-radius:12px; font-size:13px; cursor:pointer; display:block; margin-bottom:10px; font-weight:700;">🖼️ تغيير صورتي الشخصية<input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'profile')"></label>
+            </div>
+            <button id="reply-btn" class="btn-p" style="background:#007bff; color:#fff;" onclick="fastReply()">↩️ رد سريع</button>
+            <button id="msg-btn" class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="openPrivateChat()">💬 مراسلة خاصة</button>
+            <button id="block-btn" class="btn-p" style="background:var(--tt-red); color:#fff;" onclick="toggleBlockUser()">🚫 حظر المستخدم</button>
+            <button class="btn-p" style="background:#eee;" onclick="hideModal('modal-profile')">إغلاق</button>
+        </div>
+    </div>
+
     <div id="modal-inbox" class="modal-overlay"><div class="modal-card"><h3 style="margin-top:0;">الرسائل الواردة</h3><div id="inbox-list" style="max-height:300px; overflow-y:auto; text-align:right;"></div><button class="btn-p" style="background:#eee;" onclick="hideModal('modal-inbox')">إغلاق</button></div></div>
     <div id="modal-create" class="modal-overlay"><div class="modal-card"><h3>إنشاء غرفة جديدة</h3><input type="text" id="new-room-name" class="modal-input" placeholder="اسم الغرفة..."><input type="file" accept="image/*" onchange="handleFile(this, 'room')" style="font-size:11px; margin-bottom:10px;"><div style="display:flex; gap:10px;"><button class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="saveNewRoom()">تأكيد</button><button class="btn-p" style="background:#eee;" onclick="hideModal('modal-create')">إلغاء</button></div></div></div>
 
@@ -138,7 +150,6 @@
                 <img id="header-user-img" src="" class="user-mini-img" onclick="viewProfile(myUser.name, myUser.uid, myUser.img)" title="ملفي الشخصي">
             </div>
         </div>
-        
         <div class="section-header">
             <h2 class="section-title">الغرف العامة</h2>
             <div class="lobby-btns">
@@ -227,8 +238,23 @@
             document.getElementById('my-profile-tools').style.display = isMe ? 'block' : 'none';
             document.getElementById('msg-btn').style.display = isMe ? 'none' : 'block';
             document.getElementById('block-btn').style.display = isMe ? 'none' : 'block';
+            
+            // إظهار زر الرد فقط إذا كنا داخل غرفة دردشة ولسنا في الملف الشخصي الخاص بنا
+            const isInChat = document.getElementById('chat-screen').style.display === 'flex';
+            document.getElementById('reply-btn').style.display = (isInChat && !isMe) ? 'block' : 'none';
+
             if(!isMe) document.getElementById('block-btn').innerText = blockedList.includes(uid) ? "🔓 إلغاء الحظر" : "🚫 حظر المستخدم";
             showModal('modal-profile');
+        }
+
+        // وظيفة الرد السريع
+        function fastReply() {
+            if(targetUser) {
+                const input = document.getElementById('m-in');
+                input.value = `@${targetUser.name} `;
+                hideModal('modal-profile');
+                input.focus();
+            }
         }
 
         function toggleBlockUser() {
