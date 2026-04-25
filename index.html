@@ -18,43 +18,53 @@
         * { font-family: 'Cairo', sans-serif; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; background: #fff; overflow: hidden; }
 
+        #login-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--wa-green); z-index: 9999; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; color: white;
+        }
+
+        /* هيدر ثابت باسم التطبيق */
         .main-header { 
             position: sticky; top: 0; background: var(--wa-green); color: #fff; 
-            padding: 10px 15px; display: flex; justify-content: space-between; 
+            padding: 12px 15px; display: flex; justify-content: space-between; 
             align-items: center; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
         }
-        .btn-create-top { background: var(--wa-action); color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; }
+        
+        .header-logo { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+        .user-mini-img { width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid #fff; cursor: pointer; object-fit: cover; }
 
         #lobby-screen { display: block; height: 100vh; overflow-y: auto; padding-bottom: 60px; }
         
-        /* التعديل الجديد لتنسيق الكروت على الكمبيوتر والهاتف */
+        .section-header { 
+            padding: 15px 15px 5px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-title { font-size: 15px; font-weight: 900; color: #333; border-right: 4px solid var(--wa-action); padding-right: 8px; margin: 0; }
+        
+        .lobby-btns { display: flex; gap: 8px; }
+        .btn-lobby { border: none; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
         .rooms-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 15px; 
-            padding: 15px; 
+            gap: 15px; padding: 15px; 
         }
         
-        .section-header { padding: 15px 12px 0; margin-top: 5px; }
-        .section-title { font-size: 15px; font-weight: 900; color: #333; border-right: 4px solid var(--wa-action); padding-right: 8px; margin: 0; }
-
         .room-card-square { 
             position: relative; background: #fff; border-radius: 15px; overflow: hidden; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; 
             cursor: pointer; border: 1px solid #f0f0f0; transition: 0.2s;
             max-width: 220px; width: 100%; margin: auto;
         }
-        .room-card-square:active { transform: scale(0.96); }
         .room-card-img { width: 100%; aspect-ratio: 1.1 / 1; object-fit: cover; background: #eee; }
-        
-        .room-card-info { padding: 8px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 40px; }
-        .room-card-name { font-weight: 700; font-size: 13px; color: #333; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .room-card-info { padding: 8px; text-align: center; min-height: 50px; }
+        .room-card-name { font-weight: 700; font-size: 13px; color: #333; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .room-card-count { font-size: 10px; color: var(--wa-action); font-weight: 800; display: block; margin-top: 2px; }
 
         .del-room-btn {
             position: absolute; top: 8px; left: 8px; background: rgba(254, 44, 85, 0.9);
-            color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 14px;
-            z-index: 10; cursor: pointer;
+            color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 10;
         }
 
         #chat-screen { display: none; height: 100vh; flex-direction: column; background: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
@@ -63,14 +73,17 @@
         
         .msg-row { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; }
         .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
-        .u-avatar { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 1.5px solid #fff; object-fit: cover; background: #fff; }
+        .u-avatar { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 1.5px solid #fff; object-fit: cover; }
         .bubble { padding: 8px 12px; font-size: 14px; font-weight: 600; border-radius: 15px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .bubble.me { background: var(--msg-me); border-bottom-right-radius: 2px; }
         .bubble.them { background: var(--msg-them); border-bottom-left-radius: 2px; }
 
-        .input-bar { padding: 8px; display: flex; align-items: center; gap: 8px; background: #f0f0f0; }
-        .input-wrapper { background: #fff; flex: 1; border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; min-height: 45px; }
-        #m-in { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; }
+        .input-bar { padding: 8px; display: flex; align-items: center; gap: 8px; background: transparent; }
+        .input-wrapper { background: #fff; flex: 1; border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; min-height: 48px; }
+        #m-in { flex: 1; border: none; outline: none; font-size: 16px; background: transparent; }
+        .send-btn { background: var(--wa-action); border: none; width: 48px; height: 48px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        #sticker-panel { display: none; background: #fff; padding: 10px; grid-template-columns: repeat(8, 1fr); gap: 10px; border-top: 1px solid #ddd; max-height: 200px; overflow-y: auto; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-card { background: #fff; width: 85%; max-width: 300px; border-radius: 20px; padding: 20px; text-align: center; }
@@ -80,11 +93,39 @@
 </head>
 <body>
 
+    <div id="login-overlay">
+        <h2 style="font-weight: 900;">عراق جات</h2>
+        <div style="position: relative; margin: 20px 0;">
+            <img id="login-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=user" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; object-fit: cover;">
+            <label style="position: absolute; bottom: 0; right: 0; background: var(--wa-action); padding: 5px; border-radius: 50%; cursor: pointer;">
+                📷 <input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'login')">
+            </label>
+        </div>
+        <input type="text" id="login-name" class="modal-input" placeholder="اكتب اسمك المستعار..." style="width: 80%;">
+        <button class="btn-p" style="background:var(--wa-action); color:#fff; width: 80%;" onclick="finishLogin()">دخول</button>
+    </div>
+
+    <div id="modal-profile" class="modal-overlay">
+        <div class="modal-card">
+            <img id="p-img" src="" style="width:90px; height:90px; border-radius:50%; margin-bottom:10px; border:2px solid var(--wa-action); object-fit: cover;">
+            <div id="p-name" style="font-size:18px; font-weight:900; margin-bottom:15px;">...</div>
+            <div id="my-profile-tools" style="display:none;">
+                <label style="background:#f0f0f0; padding:10px; border-radius:12px; font-size:13px; cursor:pointer; display:block; margin-bottom:10px; font-weight:700;">
+                    🖼️ تغيير صورتي الشخصية
+                    <input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'profile')">
+                </label>
+            </div>
+            <button id="msg-btn" class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="openPrivateChat()">💬 مراسلة خاصة</button>
+            <button id="block-btn" class="btn-p" style="background:var(--tt-red); color:#fff;" onclick="toggleBlockUser()">🚫 حظر المستخدم</button>
+            <button class="btn-p" style="background:#eee;" onclick="hideModal('modal-profile')">إغلاق</button>
+        </div>
+    </div>
+
     <div id="modal-create" class="modal-overlay">
         <div class="modal-card">
-            <h3 style="margin:0">إنشاء غرفة جديدة</h3>
+            <h3>إنشاء غرفة جديدة</h3>
             <input type="text" id="new-room-name" class="modal-input" placeholder="اسم الغرفة...">
-            <input type="file" id="room-img-file" accept="image/*" onchange="handleFile(this, 'room')" style="font-size:12px; margin:10px 0;">
+            <input type="file" accept="image/*" onchange="handleFile(this, 'room')" style="font-size:11px; margin-bottom:10px;">
             <div style="display:flex; gap:10px;">
                 <button class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="saveNewRoom()">تأكيد</button>
                 <button class="btn-p" style="background:#eee;" onclick="hideModal('modal-create')">إلغاء</button>
@@ -92,34 +133,22 @@
         </div>
     </div>
 
-    <div id="modal-profile" class="modal-overlay">
-        <div class="modal-card">
-            <img id="p-img" src="" style="width:85px; height:85px; border-radius:50%; margin-bottom:10px; border:2px solid var(--wa-action); object-fit: cover;">
-            <div id="p-name" style="font-size:17px; font-weight:900; margin-bottom:12px;">...</div>
-            
-            <div id="my-profile-tools" style="display:none;">
-                <label style="background:#eee; padding:8px; border-radius:10px; font-size:12px; cursor:pointer; display:block; margin-bottom:10px;">
-                    🖼️ تغيير صورتي
-                    <input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'profile')">
-                </label>
-            </div>
-
-            <button id="msg-btn" class="btn-p" style="background:var(--wa-action); color:#fff;" onclick="openPrivateChat()">مراسلة خاصة</button>
-            <button id="block-btn" class="btn-p" style="background:var(--tt-red); color:#fff;" onclick="toggleBlockUser()">حظر</button>
-            <button class="btn-p" style="background:#eee;" onclick="hideModal('modal-profile')">رجوع</button>
-        </div>
-    </div>
-
     <div id="lobby-screen">
         <div class="main-header">
-            <h1 style="margin:0; font-size:18px; font-weight:900;" onclick="viewProfile(myUser.name, myUser.uid)">عراق جات 👤</h1>
-            <button class="btn-create-top" onclick="showModal('modal-create')">+ إنشاء غرفة</button>
+            <span class="header-logo">عراق جات</span>
+            <img id="header-user-img" src="" class="user-mini-img" onclick="viewProfile(myUser.name, myUser.uid, myUser.img)" title="ملفي الشخصي">
         </div>
         
-        <div class="section-header"><h2 class="section-title">الغرف العامة</h2></div>
+        <div class="section-header">
+            <h2 class="section-title">الغرف العامة</h2>
+            <div class="lobby-btns">
+                <button class="btn-lobby" style="background:var(--wa-action); color:#fff;" onclick="showModal('modal-create')">+ إنشاء غرفة</button>
+                <button class="btn-lobby" style="background:#444; color:#fff;" onclick="logout()">خروج</button>
+            </div>
+        </div>
         <div id="public-rooms" class="rooms-grid"></div>
-
-        <div class="section-header"><h2 class="section-title">غرف المستخدمين</h2></div>
+        
+        <div class="section-header"><h2 class="section-title">الغرف النشطة</h2></div>
         <div id="user-rooms" class="rooms-grid"></div>
     </div>
 
@@ -129,14 +158,16 @@
             <div id="room-title" style="flex:1; text-align:center;">...</div>
         </div>
         <div id="msg-container"></div>
+        <div id="sticker-panel"></div>
         <div class="input-bar">
             <div class="input-wrapper">
-                <span onclick="toggleStickers()" style="cursor:pointer; font-size:20px; margin-left:8px;">😊</span>
-                <input type="text" id="m-in" placeholder="اكتب رسالتك..." autocomplete="off">
+                <span id="emoji-btn" style="cursor:pointer; font-size:22px; margin-left:8px;">😊</span>
+                <input type="text" id="m-in" placeholder="رسالة..." autocomplete="off">
             </div>
-            <button onclick="sendMsg()" style="background:var(--wa-action); border:none; width:42px; height:42px; border-radius:50%; color:#fff;">🚀</button>
+            <button class="send-btn" onclick="sendMsg()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path></svg>
+            </button>
         </div>
-        <div id="sticker-panel" style="display:none; background:#f0f0f0; padding:10px; grid-template-columns: repeat(6, 1fr); gap:10px; border-top:1px solid #ccc;"></div>
     </div>
 
     <script>
@@ -144,128 +175,44 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // بيانات المستخدم
-        const myUser = { uid: "HAIDER_ALFAHAM", name: "حيدر الفهام", img: localStorage.getItem('user_img') || "" };
-        const myEmojis = ['😂','❤️','🇮🇶','😍','🌹','🔥','😎','👍','✨','😢','🙌','🎉','🇸🇦','🌙','☕','⚽','👋','💎'];
-
-        let currentRoomId = "", targetUser = null, roomImgBase64 = "";
+        let myUser = { uid: localStorage.getItem('iraq_uid') || "U" + Date.now(), name: localStorage.getItem('iraq_name') || "", img: localStorage.getItem('user_img') || "" };
+        const myEmojis = ['😂','❤️','🇮🇶','😍','🌹','🔥','😎','👍','✨','😢','🙌','🎉','🇸🇦','🌙','☕','⚽','👋','💎','💔','🤩','🙄','🤐'];
+        let currentRoomId = "", roomImgBase64 = "", targetUser = null;
         let blockedList = JSON.parse(localStorage.getItem('iraq_blocked_users') || "[]");
 
-        // نظام الحظر المربوط بلوحة التحكم
-        db.ref('global_bans/' + myUser.uid).on('value', snap => {
-            if(snap.val()) {
-                document.body.innerHTML = "<div style='display:flex; height:100vh; align-items:center; justify-content:center; text-align:center; padding:20px;'><div><h1 style='color:red;'>🚫 تم حظرك</h1><p>لقد تم حظر وصولك إلى التطبيق من قبل الإدارة.</p></div></div>";
-            }
-        });
+        if(!myUser.name) document.getElementById('login-overlay').style.display = 'flex';
+        else setupApp();
 
-        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-        window.onpopstate = () => { currentRoomId = ""; document.getElementById('lobby-screen').style.display = 'block'; document.getElementById('chat-screen').style.display = 'none'; };
-        function goBack() { window.history.back(); }
-
-        function handleFile(input, type) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if(type === 'room') roomImgBase64 = e.target.result;
-                    if(type === 'profile') {
-                        myUser.img = e.target.result;
-                        localStorage.setItem('user_img', e.target.result);
-                        document.getElementById('p-img').src = e.target.result;
-                        alert("تم تحديث صورتك الشخصية!");
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+        function finishLogin() {
+            const n = document.getElementById('login-name').value;
+            if(n.trim().length < 2) return alert("الاسم قصير");
+            myUser.name = n; localStorage.setItem('iraq_name', n); localStorage.setItem('iraq_uid', myUser.uid);
+            document.getElementById('login-overlay').style.display = 'none';
+            setupApp();
         }
 
-        function saveNewRoom() {
-            const name = document.getElementById('new-room-name').value;
-            if(name.trim()) {
-                db.ref('rooms_meta').push({ name: name, creator: myUser.name, img: roomImgBase64 || "https://via.placeholder.com/150", uid: myUser.uid });
-                document.getElementById('new-room-name').value = ""; roomImgBase64 = ""; hideModal('modal-create');
-            }
+        function setupApp() {
+            document.getElementById('header-user-img').src = myUser.img || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUser.name}`;
+            renderPublicRooms(); loadUserRooms();
+            initEmojis();
         }
 
-        function deleteRoom(e, roomId) {
-            e.stopPropagation();
-            if(confirm("حذف الغرفة نهائياً؟")) { db.ref('rooms_meta/'+roomId).remove(); db.ref('chats/'+roomId).remove(); }
+        function initEmojis() {
+            const p = document.getElementById('sticker-panel');
+            p.innerHTML = myEmojis.map(e => `<span style="font-size:24px; cursor:pointer;" onclick="addEmoji('${e}')">${e}</span>`).join('');
+            document.getElementById('emoji-btn').onclick = () => { p.style.display = p.style.display === 'grid' ? 'none' : 'grid'; };
         }
+        function addEmoji(e) { document.getElementById('m-in').value += e; }
 
-        function renderPublicRooms() {
-            const publics = [
-                { name: 'دردشة العراق 🇮🇶', img: 'https://flagpedia.net/data/flags/w580/iq.png' },
-                { name: 'غرفة المسابقات 🏆', img: 'https://img.freepik.com/free-vector/quiz-logo-with-speech-bubble-icon_1491-525.jpg' }
-            ];
-            const b = document.getElementById('public-rooms'); b.innerHTML = "";
-            publics.forEach((r, index) => {
-                b.innerHTML += `<div class="room-card-square" onclick="enterRoom('public_${index}', '${r.name}')">
-                    <img src="${r.img}" class="room-card-img"><div class="room-card-info"><span class="room-card-name">${r.name}</span></div>
-                </div>`;
-            });
-        }
-
-        db.ref('rooms_meta').on('value', snap => {
-            const uBox = document.getElementById('user-rooms'); uBox.innerHTML = "";
-            snap.forEach(c => {
-                const r = c.val();
-                const isOwner = r.uid === myUser.uid;
-                uBox.innerHTML += `<div class="room-card-square" onclick="enterRoom('${c.key}', '${r.name}')">
-                    ${isOwner ? `<button class="del-room-btn" onclick="deleteRoom(event, '${c.key}')">🗑️</button>` : ''}
-                    <img src="${r.img}" class="room-card-img"><div class="room-card-info"><span class="room-card-name">${r.name}</span></div>
-                </div>`;
-            });
-        });
-
-        function enterRoom(id, name) {
-            currentRoomId = id; document.getElementById('room-title').innerText = name;
-            document.getElementById('lobby-screen').style.display = 'none';
-            document.getElementById('chat-screen').style.display = 'flex';
-            history.pushState({view:'chat'}, ""); loadMessages();
-        }
-
-        function loadMessages() {
-            db.ref('chats/'+currentRoomId).limitToLast(50).on('value', snap => {
-                const box = document.getElementById('msg-container'); box.innerHTML = "";
-                snap.forEach(c => {
-                    const d = c.val();
-                    if(blockedList.includes(d.uid)) return;
-                    const isMe = d.uid === myUser.uid;
-                    const userAvatar = d.img ? d.img : `https://api.dicebear.com/7.x/avataaars/svg?seed=${d.u}`;
-                    box.innerHTML += `<div class="msg-row ${isMe?'me':''}">
-                        <img src="${userAvatar}" class="u-avatar" onclick="viewProfile('${d.u}','${d.uid}', '${d.img || ""}')">
-                        <div class="bubble ${isMe?'me':'them'}">${!isMe ? `<small style="color:var(--wa-green);display:block;font-weight:900;">${d.u}</small>` : ''}${d.m}</div>
-                    </div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-
-        function sendMsg() {
-            const i = document.getElementById('m-in');
-            if(i.value.trim() && currentRoomId) {
-                // فحص الكتم المربوط بلوحة التحكم
-                db.ref('global_mutes/' + myUser.uid).once('value', snap => {
-                    if(snap.val()) {
-                        alert("عذراً، أنت مكتوم حالياً من قبل الإدارة.");
-                    } else {
-                        db.ref('chats/'+currentRoomId).push({ u: myUser.name, uid: myUser.uid, m: i.value, img: myUser.img });
-                        i.value = "";
-                    }
-                });
-            }
-        }
-
-        function viewProfile(name, uid, userImg = "") {
-            targetUser = { name, uid };
+        function viewProfile(name, uid, img) {
+            targetUser = { name, uid, img };
             document.getElementById('p-name').innerText = name;
-            document.getElementById('p-img').src = userImg ? userImg : `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+            document.getElementById('p-img').src = img || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
             const isMe = uid === myUser.uid;
             document.getElementById('my-profile-tools').style.display = isMe ? 'block' : 'none';
             document.getElementById('msg-btn').style.display = isMe ? 'none' : 'block';
             document.getElementById('block-btn').style.display = isMe ? 'none' : 'block';
-            if(!isMe) document.getElementById('block-btn').innerText = blockedList.includes(uid) ? "إلغاء الحظر" : "حظر المستخدم";
+            if(!isMe) document.getElementById('block-btn').innerText = blockedList.includes(uid) ? "🔓 إلغاء الحظر" : "🚫 حظر المستخدم";
             showModal('modal-profile');
         }
 
@@ -281,17 +228,104 @@
             hideModal('modal-profile'); enterRoom(`private_${pId}`, `خاص: ${targetUser.name}`);
         }
 
-        function toggleStickers() {
-            const p = document.getElementById('sticker-panel');
-            p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
-            if(p.innerHTML === "") {
-                myEmojis.forEach(e => {
-                    p.innerHTML += `<span style="font-size:25px;cursor:pointer;text-align:center;" onclick="document.getElementById('m-in').value += '${e}'">${e}</span>`;
+        function loadMessages() {
+            db.ref('chats/'+currentRoomId).limitToLast(50).on('value', snap => {
+                const box = document.getElementById('msg-container'); box.innerHTML = "";
+                snap.forEach(c => {
+                    const d = c.val(); if(blockedList.includes(d.uid)) return;
+                    const isMe = d.uid === myUser.uid;
+                    box.innerHTML += `<div class="msg-row ${isMe?'me':''}">
+                        <img src="${d.img || 'https://api.dicebear.com/7.x/avataaars/svg?seed='+d.u}" class="u-avatar" onclick="viewProfile('${d.u}','${d.uid}', '${d.img || ""}')">
+                        <div class="bubble ${isMe?'me':'them'}">${!isMe ? `<small style="color:var(--wa-green);display:block;font-weight:900;">${d.u}</small>` : ''}${d.m}</div>
+                    </div>`;
                 });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function renderPublicRooms() {
+            const publics = [{ id:'pub_iq', name: 'دردشة العراق 🇮🇶', img: 'https://flagpedia.net/data/flags/w580/iq.png' }, { id:'pub_comp', name: 'غرفة المسابقات 🏆', img: 'https://img.freepik.com/free-vector/quiz-logo-with-speech-bubble-icon_1491-525.jpg' }];
+            const b = document.getElementById('public-rooms'); b.innerHTML = "";
+            publics.forEach(r => {
+                b.innerHTML += `<div class="room-card-square" onclick="enterRoom('${r.id}', '${r.name}')">
+                    <img src="${r.img}" class="room-card-img"><div class="room-card-info"><span class="room-card-name">${r.name}</span><span id="count-${r.id}" class="room-card-count">المتواجدين: 0</span></div>
+                </div>`;
+                trackPresence(r.id);
+            });
+        }
+
+        function loadUserRooms() {
+            db.ref('rooms_meta').on('value', snap => {
+                const uBox = document.getElementById('user-rooms');
+                let roomsArr = []; snap.forEach(c => { let r = c.val(); r.id = c.key; roomsArr.push(r); });
+                roomsArr.sort((a, b) => (b.last_active || 0) - (a.last_active || 0));
+                uBox.innerHTML = roomsArr.map(r => `
+                    <div class="room-card-square" onclick="enterRoom('${r.id}', '${r.name}')">
+                        ${r.uid === myUser.uid ? `<button class="del-room-btn" onclick="deleteRoom(event, '${r.id}')">🗑️</button>` : ''}
+                        <img src="${r.img}" class="room-card-img"><div class="room-card-info"><span class="room-card-name">${r.name}</span><span id="count-${r.id}" class="room-card-count">المتواجدين: 0</span></div>
+                    </div>`).join('');
+                roomsArr.forEach(r => trackPresence(r.id));
+            });
+        }
+
+        function trackPresence(roomId) {
+            db.ref(`presence/${roomId}`).on('value', s => {
+                const el = document.getElementById(`count-${roomId}`);
+                if(el) el.innerText = `المتواجدين: ${s.numChildren() || 0}`;
+            });
+        }
+
+        function enterRoom(id, name) {
+            currentRoomId = id; document.getElementById('room-title').innerText = name;
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('chat-screen').style.display = 'flex';
+            db.ref(`presence/${id}/${myUser.uid}`).set(Date.now());
+            db.ref(`presence/${id}/${myUser.uid}`).onDisconnect().remove();
+            loadMessages();
+            history.pushState({view:'chat'}, "");
+        }
+
+        function sendMsg() {
+            const i = document.getElementById('m-in');
+            if(i.value.trim()) {
+                const now = Date.now();
+                db.ref('chats/'+currentRoomId).push({ u: myUser.name, uid: myUser.uid, m: i.value, img: myUser.img, t: now });
+                if(!currentRoomId.startsWith('pub_')) db.ref('rooms_meta/'+currentRoomId).update({ last_active: now });
+                i.value = ""; document.getElementById('sticker-panel').style.display = 'none';
             }
         }
 
-        renderPublicRooms();
+        function handleFile(input, type) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if(type === 'login') { document.getElementById('login-preview').src = e.target.result; myUser.img = e.target.result; }
+                    if(type === 'room') roomImgBase64 = e.target.result;
+                    if(type === 'profile') { 
+                        myUser.img = e.target.result; localStorage.setItem('user_img', e.target.result); 
+                        document.getElementById('p-img').src = e.target.result; 
+                        document.getElementById('header-user-img').src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveNewRoom() {
+            const n = document.getElementById('new-room-name').value;
+            if(n.trim()) {
+                db.ref('rooms_meta').push({ name: n, creator: myUser.name, img: roomImgBase64 || "https://via.placeholder.com/150", uid: myUser.uid, last_active: Date.now() });
+                hideModal('modal-create'); roomImgBase64 = "";
+            }
+        }
+
+        function deleteRoom(e, id) { e.stopPropagation(); if(confirm("حذف الغرفة؟")) { db.ref('rooms_meta/'+id).remove(); db.ref('chats/'+id).remove(); } }
+        function logout() { if(confirm("خروج نهائي؟")) { localStorage.clear(); location.reload(); } }
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+        function goBack() { currentRoomId = ""; document.getElementById('lobby-screen').style.display = 'block'; document.getElementById('chat-screen').style.display = 'none'; }
+        window.onpopstate = goBack;
     </script>
 </body>
 </html>
