@@ -34,9 +34,7 @@
         .header-actions { display: flex; align-items: center; gap: 15px; }
         .user-mini-img { width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid #fff; cursor: pointer; object-fit: cover; }
 
-        /* جعل زر الرسائل مرئياً دائماً */
         #private-notify { font-size: 22px; cursor: pointer; position: relative; display: block; }
-        /* إخفاء النقطة الحمراء بشكل افتراضي */
         .notify-dot { position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; background: red; border-radius: 50%; border: 1.5px solid white; display: none; }
 
         #lobby-screen { display: block; height: 100%; overflow-y: auto; padding-bottom: 80px; }
@@ -111,6 +109,14 @@
         .modal-card { background: #fff; width: 85%; max-width: 300px; border-radius: 20px; padding: 20px; text-align: center; }
         .modal-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
         .btn-p { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; margin-top: 8px; }
+
+        /* تعديلات مؤشر الكتابة لتكون مخفية ضمن الهيدر */
+        #typing-status { font-size: 11px; color: #ffffffcc; font-weight: 400; margin-right: 5px; min-width: 60px; height: 15px; }
+        .msg-img { max-width: 200px; border-radius: 10px; cursor: pointer; margin-top: 5px; display: block; transition: 0.3s; }
+
+        #photo-viewer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; }
+        #full-photo { max-width: 95%; max-height: 80%; border-radius: 5px; object-fit: contain; }
+        .close-viewer { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -125,6 +131,11 @@
         </div>
         <input type="text" id="login-name" class="modal-input" placeholder="اكتب اسمك المستعار..." style="width: 80%;">
         <button class="btn-p" style="background:var(--wa-action); color:#fff; width: 80%;" onclick="finishLogin()">دخول</button>
+    </div>
+
+    <div id="photo-viewer" onclick="closePhoto()">
+        <span class="close-viewer">&times;</span>
+        <img id="full-photo" src="">
     </div>
 
     <div id="modal-profile" class="modal-overlay">
@@ -167,13 +178,16 @@
     <div id="chat-screen">
         <div class="chat-header">
             <span onclick="goBack()" style="cursor:pointer; font-size:22px;">➡️</span>
-            <div id="room-title" style="flex:1; text-align:center;">...</div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+                <div id="room-title" style="font-size:15px;">...</div>
+                <div id="typing-status"></div> </div>
         </div>
         <div id="msg-container"></div>
         <div id="sticker-panel"></div>
         <div class="input-bar">
             <div class="input-wrapper">
                 <span id="emoji-btn" style="cursor:pointer; font-size:22px; margin-left:8px;">😊</span>
+                <label style="cursor:pointer; font-size:20px; margin-left:8px;">📷<input type="file" accept="image/*" style="display:none;" onchange="sendPhoto(this)"></label>
                 <input type="text" id="m-in" placeholder="رسالة..." autocomplete="off">
             </div>
             <button class="send-btn" onclick="sendMsg()">
@@ -192,6 +206,7 @@
         let currentRoomId = "", roomImgBase64 = "", targetUser = null;
         let blockedList = JSON.parse(localStorage.getItem('iraq_blocked_users') || "[]");
         let privateRooms = {};
+        let typingTimer;
 
         if(!myUser.name) document.getElementById('login-overlay').style.display = 'flex';
         else setupApp();
@@ -209,8 +224,12 @@
             renderPublicRooms(); loadUserRooms();
             initEmojis(); listenPrivates();
             
-            document.getElementById('m-in').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') { sendMsg(); }
+            const input = document.getElementById('m-in');
+            input.addEventListener('input', () => { 
+                setTyping(); 
+            });
+            input.addEventListener('keypress', (e) => { 
+                if (e.key === 'Enter') sendMsg(); 
             });
 
             if (window.visualViewport) {
@@ -224,6 +243,33 @@
                 });
             }
         }
+
+        function openPhoto(src) {
+            document.getElementById('full-photo').src = src;
+            document.getElementById('photo-viewer').style.display = 'flex';
+        }
+        function closePhoto() {
+            document.getElementById('photo-viewer').style.display = 'none';
+        }
+
+        // --- نظام مؤشر الكتابة ---
+        function setTyping() {
+            if(!currentRoomId) return;
+            db.ref(`typing/${currentRoomId}/${myUser.uid}`).set(myUser.name);
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                db.ref(`typing/${currentRoomId}/${myUser.uid}`).remove();
+            }, 2000);
+        }
+
+        function listenTyping() {
+            db.ref(`typing/${currentRoomId}`).on('value', s => {
+                let typers = [];
+                s.forEach(t => { if(t.key !== myUser.uid) typers.push(t.val()); });
+                document.getElementById('typing-status').innerText = typers.length > 0 ? typers[0] + " يكتب الآن..." : "";
+            });
+        }
+        // -----------------------
 
         function initEmojis() {
             const p = document.getElementById('sticker-panel');
@@ -240,10 +286,8 @@
             document.getElementById('my-profile-tools').style.display = isMe ? 'block' : 'none';
             document.getElementById('msg-btn').style.display = isMe ? 'none' : 'block';
             document.getElementById('block-btn').style.display = isMe ? 'none' : 'block';
-            
             const isInChat = document.getElementById('chat-screen').style.display === 'flex';
             document.getElementById('reply-btn').style.display = (isInChat && !isMe) ? 'block' : 'none';
-
             if(!isMe) document.getElementById('block-btn').innerText = blockedList.includes(uid) ? "🔓 إلغاء الحظر" : "🚫 حظر المستخدم";
             showModal('modal-profile');
         }
@@ -282,7 +326,6 @@
                         }
                     }
                 });
-                // إظهار النقطة الحمراء فقط عند وجود رسائل جديدة
                 document.getElementById('dot-indicator').style.display = hasNew ? 'block' : 'none';
             });
         }
@@ -308,13 +351,12 @@
                 snap.forEach(c => {
                     const d = c.val(); if(blockedList.includes(d.uid)) return;
                     const isMe = d.uid === myUser.uid;
+                    const content = d.type === 'img' ? `<img src="${d.m}" class="msg-img" onclick="openPhoto('${d.m}')">` : d.m;
                     box.innerHTML += `<div class="msg-row ${isMe?'me':''}">
                         <img src="${d.img || 'https://api.dicebear.com/7.x/avataaars/svg?seed='+d.u}" class="u-avatar" onclick="viewProfile('${d.u}','${d.uid}', '${d.img || ""}')">
                         <div class="bubble-wrapper">
                             ${!isMe ? `<span class="u-name-tag">${d.u}</span>` : ''}
-                            <div class="bubble ${isMe?'me':'them'}">
-                                ${d.m}
-                            </div>
+                            <div class="bubble ${isMe?'me':'them'}">${content}</div>
                         </div>
                     </div>`;
                 });
@@ -323,10 +365,7 @@
         }
 
         function renderPublicRooms() {
-            const publics = [
-                { id:'pub_iq', name: 'الدردشة العامة', img: 'https://www.sadairaqchat.com/chat/default_images/og.png' },
-                { id:'pub_comp', name: 'غرفة المسابقات 🏆', img: 'https://it-solutions.center/wp-content/uploads/2023/11/13683697_Tiny-corporative-winners-celebrating-victory-1024x799-1.jpg' }
-            ];
+            const publics = [{ id:'pub_iq', name: 'الدردشة العامة', img: 'https://www.sadairaqchat.com/chat/default_images/og.png' }, { id:'pub_comp', name: 'غرفة المسابقات 🏆', img: 'https://it-solutions.center/wp-content/uploads/2023/11/13683697_Tiny-corporative-winners-celebrating-victory-1024x799-1.jpg' }];
             const b = document.getElementById('public-rooms'); b.innerHTML = "";
             publics.forEach(r => {
                 b.innerHTML += `<div class="room-card-square" onclick="enterRoom('${r.id}', '${r.name}')">
@@ -358,13 +397,13 @@
         }
 
         function enterRoom(id, name) {
+            if(currentRoomId) db.ref(`typing/${currentRoomId}/${myUser.uid}`).remove();
             currentRoomId = id; document.getElementById('room-title').innerText = name;
             document.getElementById('lobby-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            if (window.visualViewport) { document.getElementById('chat-screen').style.height = window.visualViewport.height + 'px'; }
             db.ref(`presence/${id}/${myUser.uid}`).set(Date.now());
             db.ref(`presence/${id}/${myUser.uid}`).onDisconnect().remove();
-            loadMessages();
+            loadMessages(); listenTyping();
             history.pushState({view:'chat'}, "");
         }
 
@@ -372,9 +411,22 @@
             const i = document.getElementById('m-in');
             if(i.value.trim()) {
                 const now = Date.now();
-                db.ref('chats/'+currentRoomId).push({ u: myUser.name, uid: myUser.uid, m: i.value, img: myUser.img, t: now });
+                db.ref('chats/'+currentRoomId).push({ u: myUser.name, uid: myUser.uid, m: i.value, img: myUser.img, t: now, type: 'text' });
                 if(!currentRoomId.startsWith('pub_') && !currentRoomId.startsWith('private_')) db.ref('rooms_meta/'+currentRoomId).update({ last_active: now });
                 i.value = ""; document.getElementById('sticker-panel').style.display = 'none';
+                db.ref(`typing/${currentRoomId}/${myUser.uid}`).remove();
+            }
+        }
+
+        function sendPhoto(input) {
+            const file = input.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const now = Date.now();
+                    db.ref('chats/'+currentRoomId).push({ u: myUser.name, uid: myUser.uid, m: e.target.result, img: myUser.img, t: now, type: 'img' });
+                };
+                reader.readAsDataURL(file);
             }
         }
 
@@ -406,7 +458,11 @@
         function logout() { if(confirm("خروج نهائي؟")) { localStorage.clear(); location.reload(); } }
         function showModal(id) { document.getElementById(id).style.display = 'flex'; }
         function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-        function goBack() { currentRoomId = ""; document.getElementById('lobby-screen').style.display = 'block'; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('chat-screen').style.height = '100%'; }
+        function goBack() { 
+            if(currentRoomId) db.ref(`typing/${currentRoomId}/${myUser.uid}`).remove();
+            currentRoomId = ""; document.getElementById('lobby-screen').style.display = 'block'; 
+            document.getElementById('chat-screen').style.display = 'none'; 
+        }
         window.onpopstate = goBack;
     </script>
 </body>
