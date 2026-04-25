@@ -54,7 +54,6 @@
 
         .del-room-btn { position: absolute; top: 8px; left: 8px; background: rgba(254, 44, 85, 0.9); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 10; }
 
-        /* التعديل لضمان ثبات شاشة الدردشة في الموبايل */
         #chat-screen { 
             display: none; 
             height: 100%; 
@@ -91,15 +90,16 @@
 
         .u-name-tag { color: #000; display: block; font-weight: 800; font-size: 13px; margin-bottom: 2px; padding: 0 5px; }
 
-        /* تعديل شريط الإدخال لضمان ظهوره دائماً */
+        /* تعديل حقل الكتابة لحل مشكلة الاقتصاص في الموبايل */
         .input-bar { 
-            padding: 8px; 
+            padding: 10px 8px 15px 8px; /* بادينج سفلي متوازن */
             display: flex; 
             align-items: center; 
             gap: 8px; 
             background: #f0f0f0; 
             flex-shrink: 0; 
-            padding-bottom: env(safe-area-inset-bottom, 8px);
+            /* السطر التالي يضمن رفع الحقل فوق شريط الموبايل السفلي */
+            padding-bottom: max(12px, env(safe-area-inset-bottom)); 
         }
         .input-wrapper { background: #fff; flex: 1; border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; min-height: 48px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         #m-in { flex: 1; border: none; outline: none; font-size: 16px; background: transparent; }
@@ -139,7 +139,6 @@
                 <img id="header-user-img" src="" class="user-mini-img" onclick="viewProfile(myUser.name, myUser.uid, myUser.img)" title="ملفي الشخصي">
             </div>
         </div>
-        
         <div class="section-header">
             <h2 class="section-title">الغرف العامة</h2>
             <div class="lobby-btns">
@@ -197,14 +196,12 @@
             renderPublicRooms(); loadUserRooms();
             initEmojis(); listenPrivates();
             
-            // إضافة مستمع لزر Enter في الكمبيوتر
+            // مستمع Enter للكمبيوتر
             document.getElementById('m-in').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMsg();
-                }
+                if (e.key === 'Enter') { sendMsg(); }
             });
 
-            // حل مشكلة لوحة المفاتيح في الموبايل
+            // معالجة لوحة مفاتيح الموبايل
             if (window.visualViewport) {
                 window.visualViewport.addEventListener('resize', () => {
                     const chatScreen = document.getElementById('chat-screen');
@@ -339,12 +336,7 @@
             currentRoomId = id; document.getElementById('room-title').innerText = name;
             document.getElementById('lobby-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            
-            // ضبط الارتفاع للموبايل فور الدخول
-            if (window.visualViewport) {
-                document.getElementById('chat-screen').style.height = window.visualViewport.height + 'px';
-            }
-
+            if (window.visualViewport) { document.getElementById('chat-screen').style.height = window.visualViewport.height + 'px'; }
             db.ref(`presence/${id}/${myUser.uid}`).set(Date.now());
             db.ref(`presence/${id}/${myUser.uid}`).onDisconnect().remove();
             loadMessages();
@@ -370,8 +362,7 @@
                     if(type === 'room') roomImgBase64 = e.target.result;
                     if(type === 'profile') { 
                         myUser.img = e.target.result; localStorage.setItem('user_img', e.target.result); 
-                        document.getElementById('p-img').src = e.target.result; 
-                        document.getElementById('header-user-img').src = e.target.result;
+                        document.getElementById('p-img').src = e.target.result; document.getElementById('header-user-img').src = e.target.result;
                     }
                 };
                 reader.readAsDataURL(file);
@@ -390,12 +381,7 @@
         function logout() { if(confirm("خروج نهائي؟")) { localStorage.clear(); location.reload(); } }
         function showModal(id) { document.getElementById(id).style.display = 'flex'; }
         function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-        function goBack() { 
-            currentRoomId = ""; 
-            document.getElementById('lobby-screen').style.display = 'block'; 
-            document.getElementById('chat-screen').style.display = 'none'; 
-            document.getElementById('chat-screen').style.height = '100%';
-        }
+        function goBack() { currentRoomId = ""; document.getElementById('lobby-screen').style.display = 'block'; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('chat-screen').style.height = '100%'; }
         window.onpopstate = goBack;
     </script>
 </body>
