@@ -104,7 +104,7 @@
         <div style="position: relative; margin: 20px 0;">
             <img id="login-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=user" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; object-fit: cover;">
             <label style="position: absolute; bottom: 0; right: 0; background: var(--wa-action); padding: 5px; border-radius: 50%; cursor: pointer;">
-                📷 <input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'login')">
+                📸 <input type="file" accept="image/*" style="display:none;" onchange="handleFile(this, 'login')">
             </label>
         </div>
         <input type="text" id="login-name" class="modal-input" placeholder="اكتب اسمك المستعار..." style="width: 80%;">
@@ -170,7 +170,7 @@
 
     <div id="chat-screen">
         <div class="chat-header">
-            <span onclick="goBack()" style="cursor:pointer; font-size:22px;">🔙</span>
+            <span onclick="goBack()" style="cursor:pointer; font-size:22px;">➡️</span>
             <div id="room-title" style="flex:1; text-align:center;">...</div>
         </div>
         <div id="msg-container"></div>
@@ -192,7 +192,7 @@
         const db = firebase.database();
 
         let myUser = { uid: localStorage.getItem('iraq_uid') || "U" + Date.now(), name: localStorage.getItem('iraq_name') || "", img: localStorage.getItem('user_img') || "" };
-        const myEmojis = ['😂','❤️','🇮🇶','😍','🌹','🔥','😎','👍','✨','😢','🙌','🎉','🇸🇦','🌙','☕','⚽','👋','💎','💔','🤩','🙄','🤐'];
+        const myEmojis = ['😂','❤️','🇮🇶','😍','🌹','🔥','😎','👍','✨','😢','🙌','🎉','🇰🇷','🌙','☕','⚽','👋','💎','💔','🤩','🙄','🤐'];
         let currentRoomId = "", roomImgBase64 = "", targetUser = null;
         let blockedList = JSON.parse(localStorage.getItem('iraq_blocked_users') || "[]");
         let privateRooms = {};
